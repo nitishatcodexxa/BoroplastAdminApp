@@ -5,7 +5,8 @@ import { Box, Button, Divider, Paper, TextField, Typography ,MenuItem} from '@mu
 import Appheader from '../Projectfile/Appheader';
 import { Sidebarc } from '../Projectfile/Sidebar';
 import Cheakin from '../Projectfile/Cheakin'
-
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from 'react-toastify';
 
 
 export class Addarea extends Component {
@@ -90,11 +91,12 @@ state_id:data.state_id
 })
   })
  
-}
+} 
 
 submit=()=>{
 
-  fetch("http://localhost:5000/Addarea", {
+  if(this.state.state_id!=="" && this.state.state!=="" && this.state.city_name!=="" && this.state.city_id!=="" && this.state.area_name!==""){
+    fetch("http://localhost:5000/Addarea", {
   
   headers:{
     //'authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -111,7 +113,7 @@ submit=()=>{
     }).then((response) => { 
       if(response.status==200){
          response.json().then((data)=> {
-alert("saved")
+this.updatePopup()
 this.setState({
   state_id:"",
   state_name:"",
@@ -122,10 +124,21 @@ this.setState({
 })
          })}
          })
+  }else{
+    this.erorPopup()
+  }
       
 }
 
 
+
+deletePopup = () => toast.success("Deleted succesfull")
+
+updatePopup = () => toast.success("Insertion succesfull")
+
+erorPopup =()=> toast.error("fill all fields",{
+  theme: "colored"
+})
 
   render() {
     return (
@@ -143,6 +156,21 @@ this.setState({
 <Paper elevation={1} sx={{minHeight:600}}> 
 <Typography sx={{fontSize:{xs:16,sm:20},fontWeight:'400',padding:2}}>Add Area </Typography>
 <Divider/>
+
+<ToastContainer 
+position="top-right"
+autoClose={5000}
+newestOnTop={false}
+closeOnClick
+rtl={false}
+hideProgressBar
+pauseOnFocusLoss
+draggable
+pauseOnHover
+theme="light"
+/>
+
+
 
 
 <Typography sx={{display:'flex',marginTop:5,fontSize:12,fontWeight:'600',marginLeft:{xs:'4%',sm:'27%'},marginRight:{xs:'4%',sm:'27%'}}} >Add Area<Typography sx={{color:'red',fontSize:15}}>*</Typography> </Typography>

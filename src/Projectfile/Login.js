@@ -21,7 +21,10 @@ export class Login extends Component {
     
       this.state = {
         showPassword:false,
-        disable:true
+        disable:true,
+
+        user_name:"",
+        password:""
       }
       this.handleChange = this.handleChange.bind(this)
     }
@@ -30,6 +33,37 @@ handleChange=(e)=>{
 this.setState({[e.target.name]:e.target.value})
 }
     
+ stateChange=(props)=>{
+  this.props.logindone()
+ }
+
+login=()=>{
+  fetch("http://localhost:5000/login", {
+    headers:{
+     // 'authorization': `Bearer ${localStorage.getItem('token')}`,
+  'content-type':'application/json',
+ // 'Access-Control-Allow-Origin': 'http://localhost:3000',
+    },
+        method: "post",
+        body:JSON.stringify({
+     user_name:this.state.user_name,
+     password:this.state.password
+          })
+
+      }).then(function(response) {
+        return response.json();
+      })
+      .then((data)=> {
+        console.log(data)
+       if(data.token){
+        sessionStorage.setItem("token",data.token);
+        sessionStorage.setItem('login',"true")
+          this.props.navigate('/dashboardc')
+       }
+      
+      });
+    
+}
 
   render() {
     return (
@@ -69,6 +103,9 @@ sx={{padding:0.5,"& input::placeholder": {
 fullWidth
         id="input-with-icon-textfield"
         placeholder='Your Name'
+        name='user_name'
+        onChange={this.handleChange}
+        value={this.state.user_name}
         InputProps={{
             disableUnderline: true,
           startAdornment: (
@@ -92,6 +129,9 @@ fullWidth
           sx={{padding:0.5,"& input::placeholder": {
             fontSize: "13px"
           }}}
+          name="password"
+          value={this.state.password}
+        onChange={this.handleChange}
           placeholder='Your Password'
           size='small'
           fullWidth
@@ -131,7 +171,7 @@ fullWidth
 
 
 <Box sx={{marginTop:6,marginLeft:4,marginRight:4}}>
-    <Button variant="contained" fullWidth size='small' sx={{backgroundColor:'#e26511'}}>Login</Button>
+    <Button onClick={this.login} variant="contained" fullWidth size='small' sx={{backgroundColor:'#e26511'}}>Login</Button>
 </Box>
 
 
@@ -171,8 +211,8 @@ fullWidth
 export default Login
 
 
-export function Bmc(props){
+export function Loginc(props){
   const navigate = useNavigate();
   const location = useLocation();
-  return (<Login navigate={navigate}></Login>)
+  return (<Login  navigate={navigate}></Login>)
 }

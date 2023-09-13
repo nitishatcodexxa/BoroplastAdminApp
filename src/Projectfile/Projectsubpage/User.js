@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Box, Typography ,Toolbar} from '@mui/material'
+import { Box, Typography ,Toolbar, Alert, Stack} from '@mui/material'
 import Appheader from '../Appheader'
 import {Sidebarc} from '../Sidebar'
 import Cheakin from '../Cheakin'
@@ -37,11 +37,14 @@ import SyncIcon from '@mui/icons-material/Sync';
 import CloseIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-
+import { withAlert } from 'react-alert'
 import DoneAllTwoToneIcon from '@mui/icons-material/DoneAllTwoTone';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import { styled } from '@mui/material/styles';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 const VisuallyHiddenInput = styled('input')`
   clip: rect(0 0 0 0);
@@ -191,7 +194,7 @@ EnhancedTableHead.propTypes = {
 };
 
 function EnhancedTableToolbar(props) {
-  const { numSelected ,selected} = props;
+  const { numSelected ,selected,call} = props;
 console.log(selected)
   function deleteAll(){
   
@@ -209,8 +212,7 @@ console.log(selected)
         }).then( (response) => { 
           if(response.status==200){
              response.json().then((data)=> {
-        alert("delted")
-      
+      call()
             });
          } })
   
@@ -340,7 +342,22 @@ openmodel:false
 
 
 
+instantUpdate=()=>{
+  fetch("http://localhost:5000/retriveUsers", {
+    headers:{
+      //'authorization': `Bearer ${localStorage.getItem('token')}`,
+    'content-type':'application/json'
+    },
+        method: "post",
+        body:JSON.stringify({})
+      }).then((response) => { 
+        if(response.status==200){
+           response.json().then((data)=> {
+  this.setState({userArray:data.data})
+          });
+       } })
 
+}
 
 
 
@@ -467,50 +484,27 @@ componentDidMount(){
    isSelected = (name) => this.state.selected.indexOf(name) !== -1;
 
 
-
-
-
-
-
-  convertocustomer=(dataa)=>{
-    fetch("https://singhservice.in/customer", {
-  
-      headers:{
-        'authorization': `Bearer ${localStorage.getItem('token')}`,
-    'content-type':'application/json',
-   // 'Access-Control-Allow-Origin': 'http://localhost:3000',
-      },
-          method: "post",
-          body:JSON.stringify({
-            data:dataa
-            })
-  
-        }).then(function(response) {
-          return response.json();
-        })
-        .then((data)=> {
-          alert("customer"+ data.data)
-        });
-        
-        /*.then( (response) => { 
-          if(response.status==200){
-             response.json().then((data)=> {
-              alert("customer added")
-            });
-          }
-        })
-  
-        */
-  }
-
-
   stateclick=(data)=>{
-    this.setState({staticCityArray:this.state.cityArray.filter(e => (e.state_id.includes(data)))  },()=>{
-      this.setState({state_id:data})
+    this.setState({staticCityArray:this.state.cityArray.filter(e => (e.state_id.includes(data.state_id)))  },()=>{
+      this.setState({state_id:data.state_id,city:"",city_id:"",area:"",area_id:""})
     })
   }
   
   cityclick=(data)=>{
+    this.setState({staticAreaArray:this.state.areaArray.filter(e => (e.city_id.includes(data.city_id)))},()=>{
+      this.setState({city_id:data.city_id,area:"",area_id:""})
+    })
+  }
+
+
+  //// for on update calling
+  stateclickedit=(data)=>{
+    this.setState({staticCityArray:this.state.cityArray.filter(e => (e.state_id.includes(data)))  },()=>{
+      this.setState({state_id:data,})
+    })
+  }
+  
+  cityclickedit=(data)=>{
     this.setState({staticAreaArray:this.state.areaArray.filter(e => (e.city_id.includes(data)))},()=>{
       this.setState({city_id:data})
     })
@@ -530,20 +524,22 @@ this.setState({
   is_installation:data.is_installation,
   is_maintainance:data.is_maintainance,
   password:data.password,
-  confirm_password:"",
+  confirm_password:data.password,
   state_id:data.state_id,
   city_id:data.city_id,
   user_id:data.user_id,
 openmodel:true,
 },()=>{
-  this.stateclick(this.state.state_id);
-  this.cityclick(this.state.city_id)
+  this.stateclickedit(this.state.state_id);
+  this.cityclickedit(this.state.city_id)
 })
 }
 
 
 submit=()=>{
-  var formData = new FormData()
+
+if(this.state.username!=="" && this.state.emailid!=="" && this.state.phoneno!=="" && this.state.address!=="" && this.state.state!=="" && this.state.city!=="" && this.state.area!=="" && (this.state.is_installation==true || this.state.is_maintainance==true )  &&  (this.state.password===this.state.confirm_password)  && this.state.password!==""   && this.state.confirm_password!=="" && this.state.city_id!==""  && this.state.user_id!==""){
+ var formData = new FormData()
   formData.append('username',this.state.username)
   formData.append('emailid',this.state.emailid)
   formData.append('phoneno',this.state.phoneno)
@@ -568,15 +564,19 @@ submit=()=>{
         }).then((response) => { 
           if(response.status==200){
              response.json().then((data)=> {
-          alert("ok")
+          this.updatePopup()
+          this.instantUpdate()
+          this.setState({openmodel:false})
             });
          } })
+}else{
+  this.erorPopup()
+}
   }
   
 
 delete=(data)=>{
   fetch("http://localhost:5000/deleteUsers", {
-  
   headers:{
     'authorization': `Bearer ${localStorage.getItem('token')}`,
 'content-type':'application/json',
@@ -591,7 +591,8 @@ delete=(data)=>{
       return response.json();
     })
     .then((data)=> {
-      alert("deleted")
+      this.deletePopup()
+      this.instantUpdate()
     });
     
 
@@ -599,7 +600,19 @@ delete=(data)=>{
 
 
 
+deletePopup = () => toast.success("Deleted succesfull")
+
+updatePopup = () => toast.success("updated succesfull")
+
+erorPopup =()=> toast.error("fill all fields",{
+  theme: "colored"
+})
+
+
+
+
   render() {
+    const alert = this.props.alert;
     const emptyRows =
     this.state.page > 0 ? Math.max(0, (1 + this.state.page) * this.state.rowsPerPage - this.state.userArray.length) : 0;
  let mm =   stableSort(this.state.userArray, getComparator(this.state.order, this.state.orderBy)).slice(
@@ -622,15 +635,27 @@ let m = mm?mm.filter((e=>(e.username=="" || e.username.includes(this.state.searc
  component="main"
  sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - 240px)` } }}
 >
+<ToastContainer 
+position="top-right"
+autoClose={5000}
+newestOnTop={false}
+closeOnClick
+rtl={false}
+hideProgressBar
+pauseOnFocusLoss
+draggable
+pauseOnHover
+theme="light"
+/>
 <Box sx={{marginTop:3}}>
 <Cheakin data={this.state.page}/>
 <Paper elevation={1} sx={{minHeight:600}}> 
-<Box sx={{marginLeft:{xs:'1%',sm:'3%'},marginRight:{xs:'1%',sm:'3%'}}}>
+<Box sx={{marginLeft:{xs:'1%',sm:'1%'},marginRight:{xs:'1%',sm:'1%'}}}>
 
 <Box sx={{}}>
 <Grid container spacing={2}>
   <Grid item xs={12} sm={6} md={6}>
-   <Box sx={{display:'flex',justifyContent:'center',}}>
+   <Box sx={{display:'flex',justifyContent:'center',marginLeft:1,marginRight:1}}>
    <TextField
 size='small'
 sx={{backgroundColor:'#f8f9ff',borderRadius:2,padding:0.5,"& input::placeholder": {
@@ -640,7 +665,7 @@ sx={{backgroundColor:'#f8f9ff',borderRadius:2,padding:0.5,"& input::placeholder"
 fullWidth
         id="input-with-icon-textfield"
         onChange={this.handleChange}
-        placeholder='Your Name'
+        placeholder='User Name'
         InputProps={{
             disableUnderline: true,
           startAdornment: (
@@ -665,17 +690,12 @@ Add User
 </Box>
 
 
-
-
-
-
-
 <Box sx={{ overflow: "auto" }}>
 <Box sx={{ width: "100%", display: "table", tableLayout: "fixed" }}>
 <Box sx={{minHeight:400,marginTop:1}}>
 <Box sx={{ width: '100%', mb: 2 }}>
-        <EnhancedTableToolbar numSelected={this.state.selected.length} selected={this.state.selected} />
-        <TableContainer>
+        <EnhancedTableToolbar numSelected={this.state.selected.length} selected={this.state.selected} call={this.instantUpdate} />
+        <TableContainer sx={{minHeight:'50vh'}}>
           <Table
             sx={{ minWidth: 770 }}
             aria-labelledby="tableTitle"
@@ -766,9 +786,6 @@ Add User
 </Box>
 </Box>
 </Box>
-
-
-
 
 
 </Box>
@@ -905,7 +922,7 @@ fullWidth
     >
       
 {this.state.stateArray.map((option) => (
-<MenuItem key={option.state_id} value={option.state_name} onClick={this.stateclick.bind(this,option.state_id)}>
+<MenuItem key={option.state_id} value={option.state_name} onClick={this.stateclick.bind(this,option)}>
   {option.state_name}
 </MenuItem>
 ))}
@@ -932,7 +949,7 @@ fullWidth
       variant='outlined'
     >
       {this.state.staticCityArray.map((option) => (
-<MenuItem key={option.city_id} value={option.city_name} onClick={this.cityclick.bind(this,option.city_id)} >
+<MenuItem key={option.city_id} value={option.city_name} onClick={this.cityclick.bind(this,option)} >
   {option.city_name}
 </MenuItem>
 ))}
@@ -962,7 +979,7 @@ fullWidth
       variant="outlined"
     >
           {this.state.staticAreaArray.map((option) => (
-<MenuItem key={option.area_id} value={option.area_name} >
+<MenuItem key={option.area_id} value={option.area_name}  onClick={()=>{this.setState({area_name:option.area_name,area_id:option.area_id})}}>
   {option.area_name}
 </MenuItem>
 ))}
@@ -1071,8 +1088,6 @@ Upload
 </Box>
 
 
-
-
 <Box sx={{display:'flex',justifyContent:'right',marginRight:3}}>
 <Button size='small' variant='contained' onClick={this.submit} sx={{textTransform:'none',backgroundColor:'#e26511'}}>Submit</Button>
 </Box>
@@ -1085,10 +1100,14 @@ Upload
 </Box>
 
 
-
   </Paper>
 </Modal>
 </Box>
+
+
+
+
+
 
 
 

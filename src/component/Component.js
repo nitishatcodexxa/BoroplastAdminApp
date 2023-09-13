@@ -42,7 +42,8 @@ import DoneAllTwoToneIcon from '@mui/icons-material/DoneAllTwoTone';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import { styled } from '@mui/material/styles';
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const VisuallyHiddenInput = styled('input')`
   clip: rect(0 0 0 0);
   clip-path: inset(50%);
@@ -180,7 +181,7 @@ EnhancedTableHead.propTypes = {
 };
 
 function EnhancedTableToolbar(props) {
-  const { numSelected ,selected} = props;
+  const { numSelected ,selected,call} = props;
 console.log(selected)
   function deleteAll(){
   
@@ -198,7 +199,7 @@ console.log(selected)
         }).then( (response) => { 
           if(response.status==200){
              response.json().then((data)=> {
-        alert("delted")
+      call();
       
             });
          } })
@@ -313,7 +314,21 @@ openmodel:false
 
 
 
-
+instantupdate=()=>{
+  fetch("http://localhost:5000/retriveComponent", {
+    headers:{
+      //'authorization': `Bearer ${localStorage.getItem('token')}`,
+    'content-type':'application/json'
+    },
+        method: "post",
+        body:JSON.stringify({})
+      }).then((response) => { 
+        if(response.status==200){
+           response.json().then((data)=> {
+  this.setState({componentArray:data.data})
+          });
+       } })
+}
 
 
 
@@ -397,7 +412,8 @@ openmodel:true
 
 
 submit=()=>{
-    fetch("http://localhost:5000/updateComponent", {
+if(this.state.component_name!=="" && this.state.component_cost!=="" && this.state.maintance_cost!=="" && this.state.component_id!==""){
+ fetch("http://localhost:5000/updateComponent", {
     headers:{
      // 'authorization': `Bearer ${localStorage.getItem('token')}`,
   'content-type':'application/json',
@@ -419,10 +435,20 @@ submit=()=>{
           component_name :"",
           component_cost:"",
           maintance_cost:"",
-          component_id:""
+          component_id:"",
+          openmodel:false
         })
-        alert("component added added")
+      this.updatePopup();
+      this.instantupdate();
       });
+
+
+}else{
+  this.erorPopup();
+}
+
+
+   
       
   }
   
@@ -444,13 +470,20 @@ delete=(data)=>{
       return response.json();
     })
     .then((data)=> {
-      alert("deleted")
+      this.deletePopup();
+      this.instantupdate();
     });
     
 
 }
 
+deletePopup = () => toast.success("Deleted succesfull")
 
+updatePopup = () => toast.success("updated succesfull")
+
+erorPopup =()=> toast.error("fill all fields",{
+  theme: "colored"
+})
 
   render() {
     const emptyRows =
@@ -480,7 +513,7 @@ let m = mm?mm.filter((e=>(e.component_name=="" || e.component_name.includes(this
 <Paper elevation={1} sx={{minHeight:600}}> 
 <Box sx={{marginLeft:{xs:'1%',sm:'3%'},marginRight:{xs:'1%',sm:'3%'}}}>
 
-<Box sx={{}}>
+<Box sx={{marginLeft:2,marginRight:2}}>
 <Grid container spacing={2}>
   <Grid item xs={12} sm={6} md={6}>
    <Box sx={{display:'flex',justifyContent:'center',}}>
@@ -517,12 +550,26 @@ Add Component
   </Grid>
 </Box>
 
+<ToastContainer 
+position="top-right"
+autoClose={5000}
+newestOnTop={false}
+closeOnClick
+rtl={false}
+hideProgressBar
+pauseOnFocusLoss
+draggable
+pauseOnHover
+theme="light"
+/>
+
+
 
 <Box sx={{ overflow: "auto" }}>
 <Box sx={{ width: "100%", display: "table", tableLayout: "fixed" }}>
 <Box sx={{minHeight:400,marginTop:1}}>
 <Box sx={{ width: '100%', mb: 2 }}>
-        <EnhancedTableToolbar numSelected={this.state.selected.length} selected={this.state.selected} />
+        <EnhancedTableToolbar numSelected={this.state.selected.length} selected={this.state.selected} call={this.instantupdate}/>
         <TableContainer>
           <Table
             sx={{ minWidth: 770 }}
@@ -545,7 +592,6 @@ Add Component
                 return (
                   <TableRow
                     hover
-                   // onClick={(event) => handleClick(event, row.lead_id)}
                     role="checkbox"
                     aria-checked={isItemSelected}
                     tabIndex={-1}
@@ -569,6 +615,7 @@ Add Component
                       component="th"
                       id={labelId}
                       scope="row"
+                     
                       padding="none"
                     >
                       {index + 1}

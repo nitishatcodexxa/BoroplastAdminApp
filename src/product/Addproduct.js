@@ -8,7 +8,8 @@ import moment from 'moment'
 import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
 import ArrowCircleLeftIcon from '@mui/icons-material/ArrowCircleLeft';
 import Cheakin from '../Projectfile/Cheakin';
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export class Addproduct extends Component {
     constructor(props) {
@@ -49,8 +50,11 @@ handleChangebox = (e) => {
 
 
 submit=()=>{
-    fetch("http://localhost:5000/addProduct", {
+
+if(this.state.productname!=="" && (this.state.is_maintainance==true || this.state.is_installation==true)){
   
+    fetch("http://localhost:5000/addProduct", {
+
     headers:{
      // 'authorization': `Bearer ${localStorage.getItem('token')}`,
   'content-type':'application/json',
@@ -73,15 +77,25 @@ submit=()=>{
             is_maintainance:false,
             is_installation:false
         })
-        alert("product added")
+        this.succes()
       });
       
+}else{
+this.erorPopup()
+}
+
+
   }
 
 
 
 
 
+  succes = ()=>toast.success("Data submited")
+
+  erorPopup =()=> toast.error("fill all fields",{
+    theme: "colored"
+  })
 
 
   render() {
@@ -101,7 +115,18 @@ submit=()=>{
 <Typography sx={{fontSize:{xs:16,sm:20},fontWeight:'400',padding:2}}>Add Product </Typography>
 <Divider/>
 
-
+<ToastContainer 
+position="top-right"
+autoClose={5000}
+newestOnTop={false}
+closeOnClick
+rtl={false}
+hideProgressBar
+pauseOnFocusLoss
+draggable
+pauseOnHover
+theme="light"
+/>
 <Typography sx={{display:'flex',marginTop:5,fontSize:12,fontWeight:'600',marginLeft:{xs:'4%',sm:'27%'},marginRight:{xs:'4%',sm:'27%'}}} >Enter Product<Typography sx={{color:'red',fontSize:15}}>*</Typography> </Typography>
 <Box sx={{display:'flex',justifyContent:'center',marginTop:0.5,marginLeft:{xs:'4%',sm:'27%'},marginRight:{xs:'4%',sm:'27%'}}}>
   <TextField

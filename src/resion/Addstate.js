@@ -5,9 +5,8 @@ import { Box, Button, Divider, Paper, TextField, Typography, alertTitleClasses }
 import Appheader from '../Projectfile/Appheader';
 import { Sidebarc } from '../Projectfile/Sidebar';
 import Cheakin from '../Projectfile/Cheakin'
-
-
-
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from 'react-toastify';
 export class Addstate extends Component {
   constructor(props) {
     super(props)
@@ -45,18 +44,22 @@ submit=()=>{
     }).then((response) => { 
       if(response.status==200){
          response.json().then((data)=> {
-   alert("data added" + this.state.statename)
-   this.setState({statename:""})
+   this.setState({statename:""});
+this.updatePopup();
         });
      } })
 
   }else{
-alert("fill all")
+this.erorPopup()
   }
 }
 
 
-
+deletePopup = () => toast.success("Deleted succesfull")
+updatePopup = () => toast.success("Insertion succesfull")
+erorPopup =()=> toast.error("fill all fields",{
+  theme: "colored"
+})
 
 
   render() {
@@ -76,6 +79,18 @@ alert("fill all")
 <Typography sx={{fontSize:{xs:16,sm:20},fontWeight:'400',padding:2}}>Add State </Typography>
 <Divider/>
 
+<ToastContainer 
+position="top-right"
+autoClose={5000}
+newestOnTop={false}
+closeOnClick
+rtl={false}
+hideProgressBar
+pauseOnFocusLoss
+draggable
+pauseOnHover
+theme="light"
+/>
 
 <Typography sx={{display:'flex',marginTop:5,fontSize:12,fontWeight:'600',marginLeft:{xs:'4%',sm:'27%'},marginRight:{xs:'4%',sm:'27%'}}} >Add State<Typography sx={{color:'red',fontSize:15}}>*</Typography> </Typography>
 <Box sx={{display:'flex',justifyContent:'center',marginTop:0.5,marginLeft:{xs:'4%',sm:'27%'},marginRight:{xs:'4%',sm:'27%'}}}>

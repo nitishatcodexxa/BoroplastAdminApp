@@ -5,6 +5,8 @@ import { Box, Button, Divider, Paper, TextField, Typography ,MenuItem} from '@mu
 import Appheader from '../Projectfile/Appheader';
 import { Sidebarc } from '../Projectfile/Sidebar';
 import Cheakin from '../Projectfile/Cheakin'
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from 'react-toastify';
 
 
 
@@ -75,18 +77,27 @@ state:this.state.state,
          response.json().then((data)=> {
 this.setState({
 city_name:"",
+state:"",
+state_id:"",
 },()=>{
-  alert("done")
+this.updatePopup()
 })
         });
      } })
   }else{
-    alert("all fill complessary")
+    this.erorPopup()
   }
 
 }
 
 
+deletePopup = () => toast.success("Deleted succesfull")
+
+updatePopup = () => toast.success("Insertion succesfull")
+
+erorPopup =()=> toast.error("fill all fields",{
+  theme: "colored"
+})
 
 
 
@@ -106,6 +117,21 @@ city_name:"",
 <Paper elevation={1} sx={{minHeight:600}}> 
 <Typography sx={{fontSize:{xs:16,sm:20},fontWeight:'400',padding:2}}>Add City </Typography>
 <Divider/>
+
+
+<ToastContainer 
+position="top-right"
+autoClose={5000}
+newestOnTop={false}
+closeOnClick
+rtl={false}
+hideProgressBar
+pauseOnFocusLoss
+draggable
+pauseOnHover
+theme="light"
+/>
+
 
 <Typography sx={{display:'flex',marginTop:5,fontSize:12,fontWeight:'600',marginLeft:{xs:'4%',sm:'27%'},marginRight:{xs:'4%',sm:'27%'}}} >Add City<Typography sx={{color:'red',fontSize:15}}>*</Typography> </Typography>
 <Box sx={{display:'flex',justifyContent:'center',marginTop:0.5,marginLeft:{xs:'4%',sm:'27%'},marginRight:{xs:'4%',sm:'27%'}}}>
@@ -131,6 +157,7 @@ city_name:"",
   size='small'
   fullWidth
   select
+  value={this.state.state}
   placeholder='Enter State Name'
   name="state"
   >

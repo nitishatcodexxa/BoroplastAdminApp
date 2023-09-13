@@ -42,7 +42,9 @@ import DoneAllTwoToneIcon from '@mui/icons-material/DoneAllTwoTone';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import { styled } from '@mui/material/styles';
-
+import {NotificationContainer, NotificationManager} from 'react-notifications';
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from 'react-toastify';
 const VisuallyHiddenInput = styled('input')`
   clip: rect(0 0 0 0);
   clip-path: inset(50%);
@@ -96,19 +98,19 @@ const headCells = [
         label: 'No',
       }, {
     id:'productname',
-    numeric:false,
+    numeric:true,
     disablePadding:true,
     label:"Product Name"
         },
         {
             id:'typeofservice',
-            numeric:false,
+            numeric:true,
             disablePadding:true,
             label:"Type Of Service"
     },
     {
         id:'status',
-        numeric:false,
+        numeric:true,
         disablePadding:true,
         label:"Status"
 },
@@ -140,7 +142,7 @@ function EnhancedTableHead(props) {
         {headCells.map((headCell) => (
           <TableCell
             key={headCell.id}
-            align={headCell.numeric ? 'center' : 'center'}
+            align={headCell.numeric ? 'center' : 'left'}
             padding={headCell.disablePadding ? 'none' : 'normal'}
             sortDirection={orderBy === headCell.id ? order : false}
           >
@@ -174,7 +176,7 @@ EnhancedTableHead.propTypes = {
 };
 
 function EnhancedTableToolbar(props) {
-  const { numSelected ,selected} = props;
+  const { numSelected ,selected,call} = props;
 console.log(selected)
   function deleteAll(){
   
@@ -192,7 +194,7 @@ console.log(selected)
         }).then( (response) => { 
           if(response.status==200){
              response.json().then((data)=> {
-        alert("delted")
+     call();
       
             });
          } })
@@ -304,10 +306,22 @@ openmodel:false
   
 
 
+instantUpdate=()=>{
+  fetch("http://localhost:5000/retriveProduct", {
+    headers:{
+      //'authorization': `Bearer ${localStorage.getItem('token')}`,
+    'content-type':'application/json'
+    },
+        method: "post",
+        body:JSON.stringify({})
+      }).then((response) => { 
+        if(response.status==200){
+           response.json().then((data)=> {
+  this.setState({productArray:data.data})
+          });
+       } })
 
-
-
-
+}
 
 
 
@@ -391,7 +405,10 @@ this.setState({
 
 
 submit=()=>{
-    fetch("http://localhost:5000/updateProduct", {
+
+if(this.state.productname!=="" && this.state.product_id!=="" && (this.state.is_maintainance==true || this.state.is_installation==true))
+{
+   fetch("http://localhost:5000/updateProduct", {
     headers:{
      // 'authorization': `Bearer ${localStorage.getItem('token')}`,
   'content-type':'application/json',
@@ -413,10 +430,17 @@ submit=()=>{
             product_type_id:"",
             productname:"",  /// for name of product
             is_maintainance:false,
-            is_installation:false
+            is_installation:false,
+            openmodel:false
         })
-        alert("product added")
+       
+     this.updatePopup()
+       this.instantUpdate()
       });
+}else{
+  this.erorPopup()
+}
+   
       
   }
   
@@ -438,12 +462,18 @@ delete=(data)=>{
       return response.json();
     })
     .then((data)=> {
-      alert("deleted")
+      this.deletePopup();
+      this.instantUpdate();
     });
     
 
 }
 
+deletePopup = () => toast.success("Deleted succesfull")
+updatePopup = () => toast.success("updated succesfull")
+erorPopup =()=> toast.error("fill all fields",{
+  theme: "colored"
+})
 
 
   render() {
@@ -474,7 +504,7 @@ let m = mm?mm.filter((e=>(e.productname=="" || e.productname.includes(this.state
 <Paper elevation={1} sx={{minHeight:600}}> 
 <Box sx={{marginLeft:{xs:'1%',sm:'3%'},marginRight:{xs:'1%',sm:'3%'}}}>
 
-<Box sx={{}}>
+<Box sx={{marginLeft:2,marginRight:2}}>
 <Grid container spacing={2}>
   <Grid item xs={12} sm={6} md={6}>
    <Box sx={{display:'flex',justifyContent:'center',}}>
@@ -512,11 +542,25 @@ Add Products
 </Box>
 
 
+<ToastContainer 
+position="top-right"
+autoClose={5000}
+newestOnTop={false}
+closeOnClick
+rtl={false}
+hideProgressBar
+pauseOnFocusLoss
+draggable
+pauseOnHover
+theme="light"
+/>
+
+
 <Box sx={{ overflow: "auto" }}>
 <Box sx={{ width: "100%", display: "table", tableLayout: "fixed" }}>
 <Box sx={{minHeight:400,marginTop:1}}>
 <Box sx={{ width: '100%', mb: 2 }}>
-        <EnhancedTableToolbar numSelected={this.state.selected.length} selected={this.state.selected} />
+        <EnhancedTableToolbar numSelected={this.state.selected.length} selected={this.state.selected}  call={this.instantUpdate}/>
         <TableContainer>
           <Table
             sx={{ minWidth: 770 }}

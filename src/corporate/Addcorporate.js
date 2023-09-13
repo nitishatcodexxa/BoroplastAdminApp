@@ -8,7 +8,9 @@ import moment from 'moment'
 import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
 import ArrowCircleLeftIcon from '@mui/icons-material/ArrowCircleLeft';
 import Cheakin from '../Projectfile/Cheakin';
+import { ToastContainer, toast } from 'react-toastify';
 
+import 'react-toastify/dist/ReactToastify.css';
 
 export class Addcorporate extends Component {
     constructor(props) {
@@ -41,6 +43,9 @@ export class Addcorporate extends Component {
 handleChange=(e)=>{
 this.setState({[e.target.name]:e.target.value})
 }
+
+
+
 
 
 
@@ -96,14 +101,7 @@ this.setState({stateArray:data.data})
                 });
              } })
          
-
-
-
-
 }
-
-
-
 
 
 
@@ -112,7 +110,6 @@ stateclick=(data)=>{
 this.setState({
   city_name:"",
   city_id:"",
-state:data.state_name,
 state_id:data.state_id
 })
   })
@@ -130,6 +127,10 @@ cityclick=(data)=>{
 
 
 submit=()=>{
+
+  if(this.state.corporate_name!=="" && this.state.corporate_address!=="" && this.state.state_name!=="" && this.state.no_of_units!=="" && this.state.city_id!=="" && this.state.state_id!=="" && this.state.area_id!=="")
+  {
+
     fetch("http://localhost:5000/addCorporate", {
     headers:{
      // 'authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -161,11 +162,25 @@ submit=()=>{
           city_name:"",
           city_id:"",
           no_of_units:"",
+          area_id:"",
+          area_name:""
         })
-        alert(" added")
+      
+        this.succes();
       });
       
+    }else{
+      this.erorPopup();
+    }
   }
+
+
+
+succes = ()=>toast.success("Data submited")
+
+erorPopup =()=> toast.error("fill all fields",{
+  theme: "colored"
+})
 
 
 
@@ -185,6 +200,19 @@ submit=()=>{
 <Paper elevation={1} sx={{minHeight:600}}> 
 <Typography sx={{fontSize:{xs:16,sm:20},fontWeight:'400',padding:2}}>Add Corporate </Typography>
 <Divider/>
+
+<ToastContainer 
+position="top-right"
+autoClose={5000}
+newestOnTop={false}
+closeOnClick
+rtl={false}
+hideProgressBar
+pauseOnFocusLoss
+draggable
+pauseOnHover
+theme="light"
+/>
 
 
 <Typography sx={{display:'flex',marginTop:5,fontSize:12,fontWeight:'600',marginLeft:{xs:'4%',sm:'27%'},marginRight:{xs:'4%',sm:'27%'}}} >Corporate Name<Typography sx={{color:'red',fontSize:15}}>*</Typography> </Typography>
@@ -331,7 +359,8 @@ Save
   </Button>
 </Box>
 
-
+<br/>
+<br/>
 
 
 </Paper>

@@ -8,7 +8,8 @@ import moment from 'moment'
 import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
 import ArrowCircleLeftIcon from '@mui/icons-material/ArrowCircleLeft';
 import Cheakin from '../Projectfile/Cheakin';
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export class Addcomponent extends Component {
     constructor(props) {
@@ -47,8 +48,9 @@ handleChangebox = (e) => {
 
 
 submit=()=>{
-    fetch("http://localhost:5000/addComponent", {
-  
+
+if(this.state.component_name!=="" && this.state.maintance_cost!=="" && this.state.component_cost!==""){
+   fetch("http://localhost:5000/addComponent", {
     headers:{
      // 'authorization': `Bearer ${localStorage.getItem('token')}`,
   'content-type':'application/json',
@@ -67,11 +69,17 @@ submit=()=>{
       .then((data)=> {
         this.setState({
           component_name:"",
-          maintainance_cost:"",
+          maintance_cost:"",
           component_cost:"",
         })
-        alert(" added")
+        this.succes();
       });
+}else{
+this.erorPopup()
+
+}
+
+   
       
   }
 
@@ -79,7 +87,11 @@ submit=()=>{
 
 
 
+  succes = ()=>toast.success("Data submited")
 
+  erorPopup =()=> toast.error("fill all fields",{
+    theme: "colored"
+  })
 
   render() {
     return (
@@ -92,6 +104,20 @@ submit=()=>{
      component="main"
      sx={{ flexGrow: 1, p: 2, width: { sm: `calc(100% - 240px)` } }}
     >
+ <ToastContainer 
+position="top-right"
+autoClose={5000}
+newestOnTop={false}
+closeOnClick
+rtl={false}
+hideProgressBar
+pauseOnFocusLoss
+draggable
+pauseOnHover
+theme="light"
+/>
+
+
       <Box sx={{marginTop:3}}>
 <Cheakin data={this.state.page}/>
 <Paper elevation={1} sx={{minHeight:600}}> 

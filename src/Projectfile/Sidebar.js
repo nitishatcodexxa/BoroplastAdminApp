@@ -12,7 +12,7 @@ import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
-
+import TaskAltIcon from '@mui/icons-material/TaskAlt';
 
 
 import { useNavigate,useLocation,useMatch } from 'react-router-dom';
@@ -52,7 +52,7 @@ third=()=>{
   
 }
   render() {
-    console.log(this.props.location.pathname)
+   
     return (
       <div>
         <Box sx={{display:{xs:'none',sm:'flex'},marginTop:7,bottom:0,minWidth:240,height:'100vh',position:'sticky'}}>
@@ -79,43 +79,43 @@ third=()=>{
 </Box>
 
 
-<Box sx={{marginLeft:2,marginRight:2,height:40,backgroundColor:this.state.id==3?'#ebebf5':"white",display:'flex',justifyContent:'left',marginTop:1,borderRadius:2,alignItems:'center'}} onClick={this.third}>
+<Box sx={{marginLeft:2,marginRight:2,height:40,backgroundColor:this.state.pathname=='/activities'?'#ebebf5':this.state.pathname=='/activities/add'?'#ebebf5':'white',display:'flex',justifyContent:'left',marginTop:1,borderRadius:2,alignItems:'center'}} onClick={this.third}>
     <Box sx={{display:'flex',flexDirection:'row',width:'100%'}}>
-      <ContactPageIcon  sx={{marginLeft:2,color:this.state.id==3?'#33339c':"#8e8e93"}}/>
+      <ContactPageIcon  sx={{marginLeft:2,color:this.state.pathname=='/activities'?'#33339c':this.state.pathname=='/activities/add'?'#33339c':"#8e8e93"}}/>
       <Box sx={{width:'100%',marginLeft:'25%'}}>
-         <Typography sx={{textAlign:'left',fontWeight:'600',fontSize:15,color:this.state.id==3?'#33339c':"#212121",marginLeft:-4}}>Activities</Typography>
+         <Typography sx={{textAlign:'left',fontWeight:'600',fontSize:15,color:this.state.pathname=='/activities'?'#33339c':this.state.pathname=='/activities/add'?'#33339c':"#212121",marginLeft:-4}}>Activities</Typography>
       </Box>
   </Box>
 </Box>
 
 
-<Box sx={{marginLeft:2,marginRight:2,height:40,backgroundColor:this.state.id==4?'#ebebf5':"white",display:'flex',justifyContent:'left',marginTop:1,borderRadius:2,alignItems:'center'}} onClick={()=>this.setState({id:4})}>
+<Box sx={{marginLeft:2,marginRight:2,height:40,backgroundColor:this.state.pathname=='/task'?'#ebebf5':this.state.pathname=='/task/add'?'#ebebf5':'white',display:'flex',justifyContent:'left',marginTop:1,borderRadius:2,alignItems:'center'}} onClick={()=>this.props.navigate('/task')}>
     <Box sx={{display:'flex',flexDirection:'row',width:'100%'}}>
-      <CleanHandsIcon  sx={{marginLeft:2,color:this.state.id==4?'#33339c':"#8e8e93"}}/>
+      <TaskAltIcon  sx={{marginLeft:2,color:this.state.pathname=='/task'?'#33339c':this.state.pathname=='/task/add'?'#33339c':"#8e8e93"}}/>
       <Box sx={{width:'100%',marginLeft:'25%'}}>
-         <Typography sx={{textAlign:'left',fontWeight:'600',fontSize:15,color:this.state.id==4?'#33339c':"#212121",marginLeft:-4}}>Task</Typography>
-      </Box>
-  </Box>
-</Box>
-
-
-
-<Box sx={{marginLeft:2,marginRight:2,height:40,backgroundColor:this.state.pathname=='/component'?'#ebebf5':"white",display:'flex',justifyContent:'left',marginTop:1,borderRadius:2,alignItems:'center'}} onClick={()=>this.props.navigate('/component')}>
-    <Box sx={{display:'flex',flexDirection:'row',width:'100%'}}>
-      <CleanHandsIcon  sx={{marginLeft:2,color:this.state.pathname=='/component'?'#33339c':"#8e8e93"}}/>
-      <Box sx={{width:'100%',marginLeft:'25%'}}>
-         <Typography sx={{textAlign:'left',fontWeight:'600',fontSize:15,color:this.state.pathname=='/component'?'#33339c':"#212121",marginLeft:-4}}>Component</Typography>
+         <Typography sx={{textAlign:'left',fontWeight:'600',fontSize:15,color:this.state.pathname=='/task'?'#33339c':this.state.pathname=='/task/add'?'#33339c':"#212121",marginLeft:-4}}>Task</Typography>
       </Box>
   </Box>
 </Box>
 
 
 
-<Box sx={{marginLeft:2,marginRight:2,height:40,backgroundColor:this.state.pathname=='/product'?'#ebebf5':"white",display:'flex',justifyContent:'left',marginTop:1,borderRadius:2,alignItems:'center'}} onClick={()=>this.props.navigate('/product')}>
+<Box sx={{marginLeft:2,marginRight:2,height:40,   backgroundColor:this.state.pathname=='/component'?'#ebebf5':this.state.pathname=='/component/add'?'#ebebf5':'white' ,display:'flex',justifyContent:'left',marginTop:1,borderRadius:2,alignItems:'center'}} onClick={()=>this.props.navigate('/component')}>
     <Box sx={{display:'flex',flexDirection:'row',width:'100%'}}>
-      <ViewInArIcon  sx={{marginLeft:2,color:this.state.pathname=='/product'?'#33339c':"#8e8e93"}}/>
+      <CleanHandsIcon  sx={{marginLeft:2,color:this.state.pathname=='/component'?'#33339c':this.state.pathname=='/component/add'?'#33339c':"#8e8e93"}}/>
       <Box sx={{width:'100%',marginLeft:'25%'}}>
-         <Typography sx={{textAlign:'left',fontWeight:'600',fontSize:15,color:this.state.pathname=='/product'?'#33339c':"#212121",marginLeft:-4}}>Products</Typography>
+         <Typography sx={{textAlign:'left',fontWeight:'600',fontSize:15,color:this.state.pathname=='/component'?'#33339c':this.state.pathname=='/component/add'?'#33339c':"#212121",marginLeft:-4}}>Component</Typography>
+      </Box>
+  </Box>
+</Box>
+
+
+
+<Box sx={{marginLeft:2,marginRight:2,height:40,backgroundColor:this.state.pathname=='/product'?'#ebebf5':this.state.pathname=='/product/add'?'#ebebf5':'white' ,display:'flex',justifyContent:'left',marginTop:1,borderRadius:2,alignItems:'center'}} onClick={()=>this.props.navigate('/product')}>
+    <Box sx={{display:'flex',flexDirection:'row',width:'100%'}}>
+      <ViewInArIcon  sx={{marginLeft:2,color:this.state.pathname=='/product'?'#33339c':this.state.pathname=='/product/add'?'#33339c':"#8e8e93"}}/>
+      <Box sx={{width:'100%',marginLeft:'25%'}}>
+         <Typography sx={{textAlign:'left',fontWeight:'600',fontSize:15,color:this.state.pathname=='/product'?'#33339c':this.state.pathname=='/product/add'?'#33339c':"#212121",marginLeft:-4}}>Products</Typography>
       </Box>
   </Box>
 </Box>
@@ -135,7 +135,7 @@ third=()=>{
     <Box sx={{display:'flex',flexDirection:'row',width:'100%',justifyContent:'space-between'}}>
       <PersonPinIcon  sx={{marginLeft:2,color:this.state.id==7?'#33339c':"#8e8e93"}}/>
       <Box sx={{width:'100%',marginLeft:'25%'}}>
-         <Typography sx={{textAlign:'left',fontWeight:'600',fontSize:15,color:this.state.pathname=='/state'?'#33339c':"#212121",marginLeft:-4}}>Resion</Typography>
+         <Typography sx={{textAlign:'left',fontWeight:'600',fontSize:15,color:this.state.pathname=='/state'?'#33339c':"#212121",marginLeft:-4}}>Region</Typography>
       </Box>
       {
         this.state.id==7?<ArrowDropUpIcon  sx={{marginRight:2,color:this.state.pathname=='/state'?'#33339c':"#8e8e93"}}/>:<ArrowDropDownIcon  sx={{marginRight:2,color:this.state.id==7?'#33339c':"#8e8e93"}}/>
@@ -244,7 +244,7 @@ third=()=>{
   }
 }
 
-//export default Sidebar
+export default Sidebar
 
 export function Sidebarc(props){
   const navigate = useNavigate();

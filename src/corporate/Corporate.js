@@ -43,7 +43,9 @@ import DoneAllTwoToneIcon from '@mui/icons-material/DoneAllTwoTone';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import { styled } from '@mui/material/styles';
+import { ToastContainer, toast } from 'react-toastify';
 
+import 'react-toastify/dist/ReactToastify.css';
 const VisuallyHiddenInput = styled('input')`
   clip: rect(0 0 0 0);
   clip-path: inset(50%);
@@ -254,13 +256,25 @@ search:"",
 corporateArray:[],
 
 ///////////////////////////
+corporate_name:'',
+corporate_address:"",
+state_name:'',
+state_id:"",
+city_name:"",
+city_id:"",
+no_of_units:"",
+corporate_id:"",
+area_name:"",
+area_id:"",
+
+cityArray:[],
+stateArray:[],
+staticCityArray:[],
+areaArray:[],
+staticAreaArray:[],
 
 
 
-
-component_name :"",
-component_cost:"",
-maintance_cost:"",
 corporate_id:"",
 /////////////////////// for model 
 openmodel:false
@@ -299,7 +313,21 @@ openmodel:false
 
 
 
-
+instanatUpdate=()=>{
+  fetch("http://localhost:5000/retriveCorporate", {
+    headers:{
+      //'authorization': `Bearer ${localStorage.getItem('token')}`,
+    'content-type':'application/json'
+    },
+        method: "post",
+        body:JSON.stringify({})
+      }).then((response) => { 
+        if(response.status==200){
+           response.json().then((data)=> {
+  this.setState({corporateArray:data.data})
+          });
+       } })
+}
 
 
 
@@ -318,6 +346,96 @@ componentDidMount(){
           });
        } })
 
+
+
+
+       fetch("http://localhost:5000/RetriveState", {
+  
+       headers:{
+         //'authorization': `Bearer ${localStorage.getItem('token')}`,
+       'content-type':'application/json'
+       },
+           method: "post",
+           body:JSON.stringify({
+     state_id:this.state.state_id,
+     city_name:this.state.city_name,
+     state:this.state.state,
+           })
+         }).then((response) => { 
+           if(response.status==200){
+              response.json().then((data)=> {
+     this.setState({stateArray:data.data})
+             });
+          } })
+      
+     
+     
+     
+          fetch("http://localhost:5000/retriveCity", {
+          headers:{
+            //'authorization': `Bearer ${localStorage.getItem('token')}`,
+          'content-type':'application/json'
+          },
+              method: "post",
+              body:JSON.stringify({})
+            }).then((response) => { 
+              if(response.status==200){
+                 response.json().then((data)=> {
+        this.setState({cityArray:data.data})
+                });
+             } })
+         
+     
+             fetch("http://localhost:5000/Retrivearea", {
+               headers:{
+                 //'authorization': `Bearer ${localStorage.getItem('token')}`,
+               'content-type':'application/json'
+               },
+                   method: "post",
+                   body:JSON.stringify({})
+                 }).then((response) => { 
+                   if(response.status==200){
+                      response.json().then((data)=> {
+             this.setState({areaArray:data.data})
+                     });
+                  } })
+              
+     
+
+}
+
+
+stateclick=(data)=>{
+  this.setState({staticCityArray:this.state.cityArray.filter(e => (e.state_id.includes(data.state_id)))  },()=>{
+this.setState({
+  city_name:"",
+  city_id:"",
+  area_name:"",
+  area_id:"",
+state_name:data.state_name,
+state_id:data.state_id
+})
+  })
+ 
+}
+
+cityclick=(data)=>{
+  this.setState({staticAreaArray:this.state.areaArray.filter(e => (e.city_id.includes(data.city_id)))},()=>{
+    this.setState({city_id:data.city_id,city_name:data.city_name,area_name:"",area_id:""})
+  })
+}
+
+ //// for on update calling
+ stateclickedit=(data)=>{
+  this.setState({staticCityArray:this.state.cityArray.filter(e => (e.state_id.includes(data)))  },()=>{
+    this.setState({state_id:data,})
+  })
+}
+
+cityclickedit=(data)=>{
+  this.setState({staticAreaArray:this.state.areaArray.filter(e => (e.city_id.includes(data)))},()=>{
+    this.setState({city_id:data})
+  })
 }
 
 
@@ -372,17 +490,30 @@ componentDidMount(){
 
 edit=(data)=>{
 this.setState({
-component_name :data.component_name,
-component_cost:data.component_cost,
-maintance_cost:data.maintainance_cost,
-corporate_id:data.corporate_id,
+  corporate_name:data.corporate_name,
+  corporate_address:data.corporate_address,
+  state_name:data.state_name,
+  state_id:data.state_id,
+  city_name:data.city_name,
+  city_id:data.city_id,
+  no_of_units:data.no_of_units,
+  corporate_id:data.corporate_id,
+  area_name:data.area_name,
+  area_id:data.area_id,
 openmodel:true
+},()=>{
+  this.stateclickedit(this.state.state_id);
+  this.cityclickedit(this.state.city_id);
+
 })
 }
 
 
 submit=()=>{
-    fetch("http://localhost:5000/updateComponent", {
+
+if(this.state.corporate_name!=="" && this.state.corporate_address!=="" && this.state.state_name!=="" && this.state.no_of_units!=="" && this.state.city_id!=="" && this.state.state_id!=="" && this.state.area_id!==""&& this.state.corporate_id!=="")
+{
+   fetch("http://localhost:5000/updateCorporate", {
     headers:{
      // 'authorization': `Bearer ${localStorage.getItem('token')}`,
   'content-type':'application/json',
@@ -390,10 +521,16 @@ submit=()=>{
     },
         method: "put",
         body:JSON.stringify({
-          component_name :this.state.component_name,
-          component_cost:this.state.component_cost,
-          maintance_cost:this.state.maintance_cost,
-          corporate_id:this.state.corporate_id,
+          corporate_name:this.state.corporate_name,
+  corporate_address:this.state.corporate_address,
+  state_name:this.state.state_name,
+  state_id:this.state.state_id,
+  city_name:this.state.city_name,
+  city_id:this.state.city_id,
+  no_of_units:this.state.no_of_units,
+  corporate_id:this.state.corporate_id,
+  area_name:this.state.area_name,
+  area_id:this.state.area_id,
           })
 
       }).then(function(response) {
@@ -401,19 +538,32 @@ submit=()=>{
       })
       .then((data)=> {
         this.setState({
-          component_name :"",
-          component_cost:"",
-          maintance_cost:"",
-          corporate_id:""
+          corporate_name:"",
+          corporate_address:"",
+          state_name:"",
+          state_id:"",
+          city_name:"",
+          city_id:"",
+          no_of_units:"",
+          corporate_id:"",
+          area_name:"",
+          area_id:"",
         })
-        alert("component added added")
+        this.setState({openmodel:false})
+        this.updatePopup()
+        this.instanatUpdate()
       });
       
+}else{
+  this.erorPopup()
+}
+
+   
   }
   
 
 delete=(data)=>{
-  fetch("http://localhost:5000/deleteComponent", {
+  fetch("http://localhost:5000/deleteCorporate", {
   
   headers:{
   //  'authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -429,13 +579,24 @@ delete=(data)=>{
       return response.json();
     })
     .then((data)=> {
-      alert("deleted")
+      this.deletePopup()
+      this.instanatUpdate()
     });
     
-
 }
 
 
+
+
+////////////////// alert section
+
+deletePopup = () => toast.success("Deleted succesfull")
+
+updatePopup = () => toast.success("updated succesfull")
+
+erorPopup =()=> toast.error("fill all fields",{
+  theme: "colored"
+})
 
   render() {
     const emptyRows =
@@ -465,7 +626,7 @@ let m = mm?mm.filter((e=>(e.corporate_name=="" || e.corporate_name.includes(this
 <Paper elevation={1} sx={{minHeight:600}}> 
 <Box sx={{marginLeft:{xs:'1%',sm:'3%'},marginRight:{xs:'1%',sm:'3%'}}}>
 
-<Box sx={{}}>
+<Box sx={{marginLeft:2,marginRight:2}}>
 <Grid container spacing={2}>
   <Grid item xs={12} sm={6} md={6}>
    <Box sx={{display:'flex',justifyContent:'center',}}>
@@ -503,6 +664,23 @@ Add Corporate
 </Box>
 
 
+<ToastContainer 
+position="top-right"
+autoClose={5000}
+newestOnTop={false}
+closeOnClick
+rtl={false}
+hideProgressBar
+pauseOnFocusLoss
+draggable
+pauseOnHover
+theme="light"
+/>
+
+
+
+
+
 <Box sx={{ overflow: "auto" }}>
 <Box sx={{ width: "100%", display: "table", tableLayout: "fixed" }}>
 <Box sx={{minHeight:400,marginTop:1}}>
@@ -530,17 +708,16 @@ Add Corporate
                 return (
                   <TableRow
                     hover
-                   // onClick={(event) => handleClick(event, row.lead_id)}
+                  
                     role="checkbox"
                     aria-checked={isItemSelected}
                     tabIndex={-1}
                     key={row.corporate_id}
-                    
                     selected={isItemSelected}
                     sx={{ cursor: 'pointer',backgroundColor:'white' }}
                   >
                     
-                    <TableCell align='left'>
+                    <TableCell disablePadding align='left'>
                     {row.corporate_name}
                       </TableCell>
                       <TableCell align='center'>
@@ -610,7 +787,7 @@ style={{display:'flex',justifyContent:'center',alignItems:'center'}}
   <Box sx={{marginTop:5}}>
 
   
-  <Typography sx={{display:'flex',marginTop:5,fontSize:12,fontWeight:'600',marginLeft:{xs:'4%',sm:'27%'},marginRight:{xs:'4%',sm:'27%'}}} >Component Name<Typography sx={{color:'red',fontSize:15}}>*</Typography> </Typography>
+  <Typography sx={{display:'flex',marginTop:5,fontSize:12,fontWeight:'600',marginLeft:{xs:'4%',sm:'27%'},marginRight:{xs:'4%',sm:'27%'}}} >Corporate Name<Typography sx={{color:'red',fontSize:15}}>*</Typography> </Typography>
 <Box sx={{display:'flex',justifyContent:'center',marginTop:0.5,marginLeft:{xs:'4%',sm:'27%'},marginRight:{xs:'4%',sm:'27%'}}}>
   <TextField
   sx={{"& input::placeholder": {
@@ -618,15 +795,33 @@ style={{display:'flex',justifyContent:'center',alignItems:'center'}}
   }}}
   size='small'
   onChange={this.handleChange}
-  value={this.state.component_name}
+  value={this.state.corporate_name}
   fullWidth
-  placeholder='Component Name'
-  name="component_name"
+  placeholder='Corporate Name'
+  name="corporate_name"
 />
     
 </Box>
 
-<Typography sx={{display:'flex',marginTop:1,fontSize:12,fontWeight:'600',marginLeft:{xs:'4%',sm:'27%'},marginRight:{xs:'4%',sm:'27%'}}} >Maintainance Cost<Typography sx={{color:'red',fontSize:15}}>*</Typography> </Typography>
+<Typography sx={{display:'flex',marginTop:1,fontSize:12,fontWeight:'600',marginLeft:{xs:'4%',sm:'27%'},marginRight:{xs:'4%',sm:'27%'}}} >Address<Typography sx={{color:'red',fontSize:15}}>*</Typography> </Typography>
+<Box sx={{display:'flex',justifyContent:'center',marginTop:0.5,marginLeft:{xs:'4%',sm:'27%'},marginRight:{xs:'4%',sm:'27%'}}}>
+  <TextField
+  sx={{"& input::placeholder": {
+    fontSize: "13px"
+  }}}
+  type='text'
+  size='small'
+  onChange={this.handleChange}
+  value={this.state.corporate_address}
+  fullWidth
+  placeholder='Corporate Address'
+  name="corporate_address"
+/>
+    
+</Box>
+
+
+<Typography sx={{display:'flex',marginTop:1,fontSize:12,fontWeight:'600',marginLeft:{xs:'4%',sm:'27%'},marginRight:{xs:'4%',sm:'27%'}}} >State<Typography sx={{color:'red',fontSize:15}}>*</Typography> </Typography>
 <Box sx={{display:'flex',justifyContent:'center',marginTop:0.5,marginLeft:{xs:'4%',sm:'27%'},marginRight:{xs:'4%',sm:'27%'}}}>
   <TextField
   sx={{"& input::placeholder": {
@@ -635,16 +830,76 @@ style={{display:'flex',justifyContent:'center',alignItems:'center'}}
   type='number'
   size='small'
   onChange={this.handleChange}
-  value={this.state.maintance_cost}
+  value={this.state.state_name}
   fullWidth
-  placeholder='Maintenance Cost'
-  name="maintance_cost"
-/>
+  placeholder='select State'
+  name="state_name"
+  select
+>
+{this.state.stateArray.map((option) => (
+            <MenuItem key={option.state_id} value={option.state_name} onClick={this.stateclick.bind(this,option)}>
+              {option.state_name}
+            </MenuItem>
+          ))}
+</TextField>
     
 </Box>
 
 
-<Typography sx={{display:'flex',marginTop:1,fontSize:12,fontWeight:'600',marginLeft:{xs:'4%',sm:'27%'},marginRight:{xs:'4%',sm:'27%'}}} >Component Cost<Typography sx={{color:'red',fontSize:15}}>*</Typography> </Typography>
+
+<Typography sx={{display:'flex',marginTop:1,fontSize:12,fontWeight:'600',marginLeft:{xs:'4%',sm:'27%'},marginRight:{xs:'4%',sm:'27%'}}} >City<Typography sx={{color:'red',fontSize:15}}>*</Typography> </Typography>
+<Box sx={{display:'flex',justifyContent:'center',marginTop:0.5,marginLeft:{xs:'4%',sm:'27%'},marginRight:{xs:'4%',sm:'27%'}}}>
+  <TextField
+  sx={{"& input::placeholder": {
+    fontSize: "13px"
+  }}}
+  type='text'
+  size='small'
+  onChange={this.handleChange}
+  value={this.state.city_name}
+  fullWidth
+  placeholder='city name'
+  name="city_name"
+  select
+>
+{this.state.staticCityArray.map((option) => (
+            <MenuItem key={option.city_id} value={option.city_name} onClick={this.cityclick.bind(this,option)}>
+              {option.city_name}
+            </MenuItem>
+          ))}
+</TextField> 
+</Box>
+
+
+<Typography sx={{display:'flex',marginTop:1,fontSize:12,fontWeight:'600',marginLeft:{xs:'4%',sm:'27%'},marginRight:{xs:'4%',sm:'27%'}}} >Area<Typography sx={{color:'red',fontSize:15}}>*</Typography> </Typography>
+<Box sx={{display:'flex',justifyContent:'center',marginTop:0.5,marginLeft:{xs:'4%',sm:'27%'},marginRight:{xs:'4%',sm:'27%'}}}>
+  <TextField
+  sx={{"& input::placeholder": {
+    fontSize: "13px"
+  }}}
+  type='text'
+  size='small'
+  onChange={this.handleChange}
+  value={this.state.area_name}
+  fullWidth
+  placeholder='area name'
+  name="area_name"
+  select
+>
+{this.state.staticAreaArray.map((option) => (
+            <MenuItem key={option.area_id} value={option.area_name}  onClick={()=>this.setState({area_name:option.area_name,area_id:option.area_id})}>
+              {option.area_name}
+            </MenuItem>
+          ))}
+</TextField>
+    
+</Box>
+
+
+
+
+
+<Typography sx={{display:'flex',marginTop:1,fontSize:12,fontWeight:'600',marginLeft:{xs:'4%',sm:'27%'},marginRight:{xs:'4%',sm:'27%'}}} >No Of Units For Inspection(Number)<Typography sx={{color:'red',fontSize:15}}>*</Typography> </Typography>
 <Box sx={{display:'flex',justifyContent:'center',marginTop:0.5,marginLeft:{xs:'4%',sm:'27%'},marginRight:{xs:'4%',sm:'27%'}}}>
   <TextField
   sx={{"& input::placeholder": {
@@ -653,14 +908,16 @@ style={{display:'flex',justifyContent:'center',alignItems:'center'}}
   type='number'
   size='small'
   onChange={this.handleChange}
-  value={this.state.component_cost}
+  value={this.state.no_of_units}
   fullWidth
-  placeholder='Component Cost'
-  name="component_cost"
+  placeholder='No of Units'
+  name="no_of_units"
+  
 />
+
+
     
 </Box>
-
 
 
 

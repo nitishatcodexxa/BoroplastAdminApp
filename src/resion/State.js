@@ -1,36 +1,129 @@
 import React, { Component } from 'react'
-import { useNavigate,useLocation,useMatch } from 'react-router-dom';
+import { Box, Typography ,Toolbar} from '@mui/material'
+import Appheader from '../Projectfile/Appheader'
+import {Sidebarc} from '../Projectfile/Sidebar'
+import Cheakin from '../Projectfile/Cheakin'
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-
-import { Box, Button, Divider, Grid, Paper, TextField, Typography ,InputAdornment,Radio} from '@mui/material';
-import Appheader from '../Projectfile/Appheader';
-import { Sidebarc } from '../Projectfile/Sidebar';
-import Cheakin from '../Projectfile/Cheakin'
+import {  Button, Divider, Grid, Paper, TextField,InputAdornment,Radio,TablePagination,Modal,MenuItem} from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import TuneIcon from '@mui/icons-material/Tune';
+import { alpha } from '@mui/material/styles';
 
-
+import { useNavigate,useLocation,useMatch } from 'react-router-dom';
 import BorderColorIcon from '@mui/icons-material/BorderColor';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ContactPageIcon from '@mui/icons-material/ContactPage';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import PropTypes from 'prop-types';
+import TableSortLabel from '@mui/material/TableSortLabel';
+import moment from 'moment'
+import Checkbox from '@mui/material/Checkbox';
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import SellOutlinedIcon from '@mui/icons-material/SellOutlined';
+import TrendingUpOutlinedIcon from '@mui/icons-material/TrendingUpOutlined';
+import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
+import MarkUnreadChatAltOutlinedIcon from '@mui/icons-material/MarkUnreadChatAltOutlined';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import PersonAddAltOutlinedIcon from '@mui/icons-material/PersonAddAltOutlined';
+import SyncIcon from '@mui/icons-material/Sync';
+import CloseIcon from '@mui/icons-material/Close';
+import EditIcon from '@mui/icons-material/Edit';
+import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
+
+import DoneAllTwoToneIcon from '@mui/icons-material/DoneAllTwoTone';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload'
+import { styled } from '@mui/material/styles';
+import {NotificationContainer, NotificationManager} from 'react-notifications';
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from 'react-toastify';
+
+
+function descendingComparator(a, b, orderBy) {
+  if (b[orderBy] < a[orderBy]) {
+    return -1;
+  }
+  if (b[orderBy] > a[orderBy]) {
+    return 1;
+  }
+  return 0;
+}
+
+function getComparator(order, orderBy) {
+  return order === 'desc'
+    ? (a, b) => descendingComparator(a, b, orderBy)
+    : (a, b) => -descendingComparator(a, b, orderBy);
+}
+
+
+function stableSort(array, comparator) {
+  const stabilizedThis = array.map((el, index) => [el, index]);
+  stabilizedThis.sort((a, b) => {
+    const order = comparator(a[0], b[0]);
+    if (order !== 0) {
+      return order;
+    }
+    return a[1] - b[1];
+  });
+  return stabilizedThis.map((el) => el[0]);
+}
+
 
 export class State extends Component {
   constructor(props) {
     super(props)
   
     this.state = {
-       page:"Resion - State",
+     page_name:"state",
+
+     order:"asc",
+     orderBy:'calories',
+     selected:[],
+     page:0,
+     dense:false,
+     rowsPerPage:5,
 
        state:"",
+      stateArray:[],
+     search:"",
+     openmodel:false,
+//////////////// for edit
+state_name:"",
+state_id:"",
+
     }
     this.handleChange = this.handleChange.bind()
   }
+
+componentDidMount(){
+  fetch("http://localhost:5000/RetriveState", {
+  
+  headers:{
+    //'authorization': `Bearer ${localStorage.getItem('token')}`,
+  'content-type':'application/json'
+  },
+      method: "post",
+      body:JSON.stringify({
+state_id:this.state.state_id,
+city_name:this.state.city_name,
+state:this.state.state,
+      })
+    }).then((response) => { 
+      if(response.status==200){
+         response.json().then((data)=> {
+this.setState({stateArray:data.data})
+        });
+     } })
+}
+
 
 
 handleChange=(e)=>{
@@ -38,7 +131,164 @@ handleChange=(e)=>{
 }
 
 
+
+handleRequestSort = (event, property) => {
+  const isAsc = this.state.orderBy === property && this.state.order === 'asc';
+  this.setState({order:isAsc ? 'desc' : 'asc'});
+  this.setState({orderBy:property})
+ 
+};
+
+ handleSelectAllClick = (event) => {
+  if (event.target.checked) {
+    const newSelected = this.state.productArray.map((n) => n.product_id);
+    this.setState({selected:newSelected})
+ 
+    return;
+  }
+  this.setState({selected:[]})
+};
+
+ handleClick = (event, name) => {
+  const selectedIndex = this.state.selected.indexOf(name);
+  let newSelected = [];
+
+  if (selectedIndex === -1) {
+    newSelected = newSelected.concat(this.state.selected, name);
+  } else if (selectedIndex === 0) {
+    newSelected = newSelected.concat(this.state.selected.slice(1));
+  } else if (selectedIndex === this.state.selected.length - 1) {
+    newSelected = newSelected.concat(this.state.selected.slice(0, -1));
+  } else if (selectedIndex > 0) {
+    newSelected = newSelected.concat(
+      this.state.selected.slice(0, selectedIndex),
+      this.state.selected.slice(selectedIndex + 1),
+    );
+  }
+  this.setState({selected:newSelected})
+};
+
+handleChangePage = (event, newPage) => {
+  this.setState({page:newPage})
+};
+
+handleChangeRowsPerPage = (event) => {
+  this.setState({rowsPerPage:parseInt(event.target.value, 10)})
+  this.setState({page:0})
+};
+ isSelected = (name) => this.state.selected.indexOf(name) !== -1;
+
+
+
+
+
+edit=(data)=>{
+  this.setState({
+    state_name:data.state_name,
+    state_id:data.state_id,
+    openmodel:true
+  })
+}
+
+
+
+submit=()=>{
+  if(this.state.state_name!=="" && this.state.state_id!==""){
+    fetch("http://localhost:5000/updateState", {
+    headers:{
+     // 'authorization': `Bearer ${localStorage.getItem('token')}`,
+  'content-type':'application/json',
+ // 'Access-Control-Allow-Origin': 'http://localhost:3000',
+    },
+        method: "put",
+        body:JSON.stringify({
+            state_name:this.state.state_name,
+            state_id:this.state.state_id
+          })
+
+      }).then(function(response) {
+        return response.json();
+      })
+      .then((data)=> {
+this.setState({
+  openmodel:false,
+  state_name:"",
+  state_id:""
+})
+this.updatePopup();
+this.instantUpdate();
+      })
+  }else{
+    this.erorPopup();
+  }
+  
+}
+
+
+instantUpdate=()=>{
+  fetch("http://localhost:5000/RetriveState", {
+  
+  headers:{
+    //'authorization': `Bearer ${localStorage.getItem('token')}`,
+  'content-type':'application/json'
+  },
+      method: "post",
+      body:JSON.stringify({
+state_id:this.state.state_id,
+city_name:this.state.city_name,
+state:this.state.state,
+      })
+    }).then((response) => { 
+      if(response.status==200){
+         response.json().then((data)=> {
+this.setState({stateArray:data.data})
+        });
+     } })
+}
+
+
+
+delete=(da)=>{
+  fetch("http://localhost:5000/deleteState", {
+    headers:{
+     // 'authorization': `Bearer ${localStorage.getItem('token')}`,
+  'content-type':'application/json',
+ // 'Access-Control-Allow-Origin': 'http://localhost:3000',
+    },
+        method: "delete",
+        body:JSON.stringify({
+            state_id:da.state_id
+          })
+
+      }).then(function(response) {
+        return response.json();
+      })
+      .then((data)=> {
+this.deletePopup()
+this.instantUpdate()
+      })
+}
+
+deletePopup = () => toast.success("Deleted succesfull")
+updatePopup = () => toast.success("updated succesfull")
+erorPopup =()=> toast.error("fill all fields",{
+  theme: "colored"
+})
+
   render() {
+
+    const emptyRows =
+    this.state.page > 0 ? Math.max(0, (1 + this.state.page) * this.state.rowsPerPage - this.state.stateArray.length) : 0;
+ let mm =   stableSort(this.state.stateArray, getComparator(this.state.order, this.state.orderBy)).slice(
+        this.state.page * this.state.rowsPerPage,
+        this.state.page * this.state.rowsPerPage + this.state.rowsPerPage,
+      )
+
+let m = mm?mm.filter((e=>(e.state_name=="" || e.state_name.includes(this.state.search)))):null
+
+
+
+
     return (
       <Box sx={{backgroundColor:'#f8f9ff'}}>
       <Appheader/>
@@ -50,7 +300,7 @@ handleChange=(e)=>{
      sx={{ flexGrow: 1, p: 2, width: { sm: `calc(100% - 240px)` } }}
     >
       <Box sx={{marginTop:3}}>
-<Cheakin data={this.state.page}/>
+<Cheakin data={this.state.page_name}/>
 <Paper elevation={1} sx={{minHeight:600,padding:2}}> 
 <Box sx={{marginLeft:{xs:'1%',sm:'3%'},marginRight:{xs:'1%',sm:'3%'}}}>
 
@@ -60,10 +310,12 @@ handleChange=(e)=>{
    <Box sx={{display:'flex',justifyContent:'center',}}>
    <TextField
 size='small'
+onChange={this.handleChange}
 sx={{backgroundColor:'#f8f9ff',borderRadius:2,padding:0.5,"& input::placeholder": {
     fontSize: "13px"
   }}}
 fullWidth
+name="search"
         id="input-with-icon-textfield"
         placeholder='Your Name'
         InputProps={{
@@ -90,93 +342,109 @@ Add State
 </Box>
 
 
+<ToastContainer 
+position="top-right"
+autoClose={5000}
+newestOnTop={false}
+closeOnClick
+rtl={false}
+hideProgressBar
+pauseOnFocusLoss
+draggable
+pauseOnHover
+theme="light"
+/>
 
 
-
-
-
-
+<Box sx={{ overflow: "auto" }}>
+<Box sx={{ width: "100%", display: "table", tableLayout: "fixed" }}>
 <Box sx={{minHeight:400,marginTop:3}}>
 
 <TableContainer>
       <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
         <TableHead>
           <TableRow>
-            <TableCell align="left"  sx={{color:'#718096',fontSize:16,fontWeight:'500'}}> 
-            <Radio
-  checked={'a' === 'a'}
-  size='small'
-  onChange={this.handleChange}
-  value="a"
-  name="radio-buttons"
-  inputProps={{ 'aria-label': 'A' }}
-  />
-</TableCell>
             <TableCell align="center" sx={{color:'#718096',fontSize:14,fontWeight:'500'}}>State Name</TableCell>
-            <TableCell align="right" sx={{color:'#718096',fontSize:14,fontWeight:'500'}}>Status</TableCell>
+            <TableCell align="center" sx={{color:'#718096',fontSize:14,fontWeight:'500'}}>Status</TableCell>
            
           </TableRow>
         </TableHead>
         <TableBody>
-          {[1,234].map((row) => (
+          {m.map((row) => (
             <TableRow
               key={row.name}
               sx={{border:0}}
             >
-              <TableCell component="th" scope="row">
-              <Radio
-  checked={'ab' === 'a'}
-  onChange={this.handleChange}
-  value="a"
-  size='small'
-  sx={{color:"#718096"}}
-  name="radio-buttons"
-  inputProps={{ 'aria-label': 'A' }}
-  />
-              </TableCell>
-              <TableCell align="center" sx={{fontSize:13,}}>maharastra</TableCell>
-              <TableCell align="right"><BorderColorIcon sx={{color:'green',height:16,width:16}}/>   <DeleteIcon sx={{color:'red',height:16,width:16, marginLeft:0.5,marginRight:0.5}}/> <ContactPageIcon sx={{color:'#3f4290',height:16,width:16}}/>  </TableCell>
+              
+              <TableCell align="center" sx={{fontSize:13,}}>{row.state_name}</TableCell>
+              <TableCell align="center"><BorderColorIcon sx={{color:'green',height:16,width:16}} onClick={this.edit.bind(this,row)}/>   <DeleteIcon sx={{color:'red',height:16,width:16, marginLeft:0.5,marginRight:0.5}} onClick={this.delete.bind(this,row)}/> <ContactPageIcon sx={{color:'#3f4290',height:16,width:16}}/>  </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
     </TableContainer>
+    <TablePagination
+          rowsPerPageOptions={[1,5, 10,20, 25]}
+          component="div"
+          count={this.state.stateArray.length}
+          rowsPerPage={this.state.rowsPerPage}
+          page={this.state.page}
+          onPageChange={this.handleChangePage}
+          onRowsPerPageChange={this.handleChangeRowsPerPage}
+        />
 
+</Box>
+</Box>
+</Box>
+</Box>
+</Paper>
+  </Box>
+    </Box>
+    </Box>
 
+    <Box sx={{width:'100%'}}>
+<Modal
+style={{display:'flex',justifyContent:'center',alignItems:'center'}}
+  open={this.state.openmodel}
+  onClose={this.handleClose}
+  aria-labelledby="modal-modal-title"
+  aria-describedby="modal-modal-description"
+>
+  <Paper elevation={1} sx={{maxHeight:{xs:'90vh',sm:'80vh'},width:{xs:'95%',sm:'80%'},overflow:'scroll'}}>
+    <Paper onClick={()=>this.setState({openmodel:false})} elevation={5} sx={{height:30,width:30,backgroundColor:'#e5e2fc',display:'flex',justifyContent:'center',alignItems:'center'}}>
+      <CloseIcon color='#1c446a' />
+    </Paper>
 
-
-
-
-
-
-
-
-
-
-
-
+  <Box sx={{marginTop:5}}>
+  <Typography sx={{display:'flex',marginTop:5,fontSize:12,fontWeight:'600',marginLeft:{xs:'4%',sm:'27%'},marginRight:{xs:'4%',sm:'27%'}}} >Add State<Typography sx={{color:'red',fontSize:15}}>*</Typography> </Typography>
+<Box sx={{display:'flex',justifyContent:'center',marginTop:0.5,marginLeft:{xs:'4%',sm:'27%'},marginRight:{xs:'4%',sm:'27%'}}}>
+  <TextField
+  sx={{"& input::placeholder": {
+    fontSize: "13px"
+  }}}
+  size='small'
+  onChange={this.handleChange}
+  value={this.state.state_name}
+  fullWidth
+  placeholder='Enter State Name'
+  name="state_name"
+  />
 </Box>
 
 
-
-
-
-
-
-
-
-
-
-
+<Box sx={{display:'flex',justifyContent:'right',marginTop:5,marginLeft:{xs:'4%',sm:'27%'},marginRight:{xs:'4%',sm:'27%'}}}>
+  <Button variant='contained' onClick={this.submit} size='small' sx={{textTransform:'none',backgroundColor:'#e26511'}}>
+Save
+  </Button>
+</Box>
 
 
 
 
 </Box>
 </Paper>
-  </Box>
-    </Box>
-    </Box>
+</Modal>
+</Box>
     </Box>
     )
   }

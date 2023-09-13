@@ -1,12 +1,12 @@
 import logo from './logo.svg';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
-import Login from './Projectfile/Login';
+import Login, { Loginc } from './Projectfile/Login';
 import {Box} from '@mui/material'
 
 import Dashboard from './Projectfile/Projectsubpage/Dashboard';
 import { Dashboardc } from './Projectfile/Projectsubpage/Dashboard';
-import Activities from './Projectfile/Projectsubpage/Activities';
+import Activities, { Activitiesc } from './Projectfile/Projectsubpage/Activities';
 import User, { Userc } from './Projectfile/Projectsubpage/User'
 import {
   createBrowserRouter,
@@ -28,24 +28,50 @@ import { Addproductc } from './product/Addproduct';
 import { Componentc } from './component/Component';
 import { Addcomponentc } from './component/Addcomponent';
 import { Unitc } from './unit_management/Unit';
-function App() {
-  return (
+import { Addunitc } from './unit_management/Addunit';
+import { Addactivitiesc } from './Projectfile/Projectsubpage/Addactivities';
+import { Taskc } from './Task/Task';
+import { Addtaskc } from './Task/Addtask';
 
+import { useNavigate,useLocation,useMatch } from 'react-router-dom';
+function App() {
+
+const [islogin,setIslogin] = useState(false)
+const [token,setToken] = useState(sessionStorage.getItem('token'))
+useEffect(()=>{
+
+
+
+},[])
+
+function st(){
+  alert("ok")
+}
+
+
+  return (
  <React.StrictMode>
     <RouterProvider router={
 createBrowserRouter([
   {
     path: "/",
-    element: <Login/>,
+    element: <Loginc st={st} />,
   },
   {
     path: "/dashboardc",
-    element: <Dashboardc/>,
+    element:  <Dashboardc/>,
   },
   {
     path: "/activities",
-    element:<Activities/>,
+    element: <Activitiesc/>,
   },
+  {
+    path: "/activities/add",
+    element:<Addactivitiesc/>,
+  },
+
+
+  ////////////////////
   {
     path: "/users",
     element:<Userc/>,
@@ -66,7 +92,7 @@ createBrowserRouter([
 //// for resion
 {
   path: "/state",
-  element: <Statec/>,
+  element:<Statec/>,
 },
 {
   path: "/state/add",
@@ -99,6 +125,10 @@ createBrowserRouter([
 {
   path:'/unit',
   element:<Unitc/>,
+},
+{
+  path:'/unit/add',
+  element:<Addunitc/>,
 }
 ,
 
@@ -126,6 +156,17 @@ createBrowserRouter([
 {
   path: "/area/add",
   element: <Addareac/>,
+},
+
+////////////////// task
+
+{
+  path: "/task",
+  element: <Taskc/>,
+},
+{
+  path: "/task/add",
+  element: <Addtaskc/>,
 },
 
 
